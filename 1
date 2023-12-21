@@ -1,0 +1,33 @@
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.athena.AthenaClient;
+
+public class AthenaClientFactory {
+
+    public static AthenaClient createAthenaClient() {
+        // Replace these values with the actual credentials obtained from your SAML-based authentication
+        String accessKey = "your_access_key";
+        String secretKey = "your_secret_key";
+        String sessionToken = "your_session_token";
+
+        // Create AwsSessionCredentials object
+        AwsSessionCredentials awsSessionCredentials = AwsSessionCredentials.create(
+                accessKey,
+                secretKey,
+                sessionToken
+        );
+
+        // Create AthenaClient with the provided credentials
+        return AthenaClient.builder()
+                .region(Region.US_WEST_2)
+                .credentialsProvider(() -> awsSessionCredentials)
+                .build();
+    }
+
+    public static void main(String[] args) {
+        AthenaClient athenaClient = createAthenaClient();
+
+        // Now you can use 'athenaClient' to interact with Athena services
+        // For example: athenaClient.startQueryExecution(...);
+    }
+}
