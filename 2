@@ -1,0 +1,52 @@
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.athena.AthenaClient;
+import software.amazon.awssdk.services.athena.model.StartQueryExecutionRequest;
+import software.amazon.awssdk.services.athena.model.StartQueryExecutionResponse;
+
+public class AthenaClientFactory {
+
+    public static AthenaClient createAthenaClient() {
+        // Replace these values with the actual credentials obtained from your SAML-based authentication
+        String accessKey = "your_access_key";
+        String secretKey = "your_secret_key";
+        String sessionToken = "your_session_token";
+
+        // Replace this with the S3 bucket and path where query results should be stored
+        String s3OutputLocation = "s3://your-athena-output-bucket/athena-query-results/";
+
+        // Create AwsSessionCredentials object
+        AwsSessionCredentials awsSessionCredentials = AwsSessionCredentials.create(
+                accessKey,
+                secretKey,
+                sessionToken
+        );
+
+        // Create AthenaClient with the provided credentials and S3 output location
+        return AthenaClient.builder()
+                .region(Region.US_WEST_2)
+                .credentialsProvider(() -> awsSessionCredentials)
+                .build();
+    }
+
+    public static void main(String[] args) {
+        AthenaClient athenaClient = createAthenaClient();
+
+        // Sample query execution
+        String query = "SELECT * FROM your_table;";
+        String queryExecutionId = startQueryExecution(athenaClient, query);
+
+        System.out.println("Query submitted. Execution ID: " + queryExecutionId);
+    }
+
+    private static String startQueryExecution(AthenaClient athenaClient, String query) {
+        StartQueryExecutionResponse response = athenaClient.startQueryExecution(
+                StartQueryExecutionRequest.builder()
+                        .queryString(query)
+                        .resultConfiguration(cfg -> cfg.outputLocation("s3://your-athena-output-bucket/athena-query-results/"))
+                        .build()
+        );
+
+        return response.queryExecutionId();
+    }
+}
