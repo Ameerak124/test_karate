@@ -1,0 +1,21 @@
+Feature: Amazon Athena Integration Test
+
+Background:
+  * def JavaCode = Java.type('AthenaClientFactory')
+  * def athenaClient = JavaCode.createAthenaClient()
+  * def s3OutputLocation = 's3://your-athena-output-bucket/athena-query-results/'
+  * def query = 'SELECT * FROM your_table;'
+
+Scenario: Verify Athena Connection
+  Given url 'https://athena.amazonaws.com'  # Replace with the actual Athena endpoint
+  And path '/v2/your_database'  # Replace with your Athena database
+  And request { query: 'SELECT 1' }
+  When method post
+  Then status 200
+  And match response == { status: 'SUCCEEDED' }
+  And match response.results[0] == [1]
+
+Scenario: Execute Sample Query
+  * def queryExecutionId = JavaCode.startQueryExecution(athenaClient, query)
+  * print 'Query submitted. Execution ID: ', queryExecutionId
+  # Add more assertions or validations as needed
