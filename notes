@@ -1,0 +1,20 @@
+High Level comparative Analysis between DVC and AWS Sagemaker
+
+Opensource    
+
+
+
+Bug Count : 
+
+Bugs which are in open state in the official repos are taken into consideration
+
+
+
+Collaboration and web/UI:
+
+DVC Studio has web-based user interface (UI) and collabaration
+
+
+Lightweight:
+
+DVC is lightweight, which means we might need to manually develop extra features to make it easy to use
