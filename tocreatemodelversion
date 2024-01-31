@@ -1,0 +1,30 @@
+model_package_group_arn = create_model_pacakge_group_response['ModelPackageGroupArn']
+modelpackage_inference_specification =  {
+    "InferenceSpecification": {
+        "Containers": [
+            {
+                "Image": image_uri,
+            }
+        ],
+        "SupportedContentTypes": [ "text/csv" ],
+        "SupportedResponseMIMETypes": [ "text/csv" ],
+    }
+}
+ 
+# Specify the model source
+model_url = model_artifacts
+
+# Specify the model data
+modelpackage_inference_specification["InferenceSpecification"]["Containers"][0]["ModelDataUrl"]=model_url
+
+create_model_package_input_dict = {
+    "ModelPackageGroupName" : model_package_group_arn,
+    "ModelPackageDescription" : "version 3",
+    "ModelApprovalStatus" : "PendingManualApproval"
+}
+create_model_package_input_dict.update(modelpackage_inference_specification)
+
+# Create cross-account model package
+create_mode_package_response = client.create_model_package(**create_model_package_input_dict)
+model_package_arn = create_mode_package_response["ModelPackageArn"]
+print('ModelPackage Version ARN : {}'.format(model_package_arn))
