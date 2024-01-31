@@ -1,0 +1,9 @@
+import time
+model_package_group_name = "xgboost-abalone-realtime"
+model_package_group_input_dict = {
+ "ModelPackageGroupName" : model_package_group_name,
+ "ModelPackageGroupDescription" : "Model package group for xgboost regression model with Abalone dataset"
+}
+
+create_model_pacakge_group_response = client.create_model_package_group(**model_package_group_input_dict)
+print('ModelPackageGroup Arn : {}'.format(create_model_pacakge_group_response['ModelPackageGroupArn']))
