@@ -1,0 +1,77 @@
+from __future__ import print_function
+
+import io
+import os
+import pandas as pd
+import flask
+import spacy
+import json
+
+prefix = "/opt/ml/"
+model_path = os.path.join(prefix, "model")
+
+class ScoringService(object):
+    model = None  # Where we keep the model when it's loaded
+
+    @classmethod
+    def get_model(cls):
+        """Get the model object for this instance, loading it if it's not already loaded."""
+        if cls.model is None:
+            cls.model = spacy.load(model_path + "/trained_spacy")
+        return cls.model
+
+    @classmethod
+    def predict(cls, texts):
+        """For the input, do the predictions and return them.
+
+        Args:
+            texts (list of str): The texts on which to do the predictions.
+        """
+        model = cls.get_model()
+        predictions = []
+        for text in texts:
+            doc = model(text)
+            predictions.append({
+                "text": text,
+                "entities": [{"text": ent.text, "label": ent.label_} for ent in doc.ents]
+            })
+        return predictions
+
+# The flask app for serving predictions
+app = flask.Flask(__name__)
+
+@app.route("/ping", methods=["GET"])
+def ping():
+    """Determine if the container is working and healthy. In this sample container, we declare
+    it healthy if we can load the model successfully."""
+    health = ScoringService.get_model() is not None  # You can insert a health check here
+
+    status = 200 if health else 404
+    return flask.Response(response="\n", status=status, mimetype="application/json")
+
+@app.route("/invocations", methods=["POST"])
+def transformation():
+    """Do an inference on a single batch of data. In this sample server, we take data as CSV, convert
+    it to a pandas data frame for internal use and then convert the predictions back to JSON.
+    """
+    if flask.request.content_type != "text/csv":
+        return flask.Response(
+            response="This predictor only supports CSV data", status=415, mimetype="text/plain"
+        )
+
+    data = flask.request.data.decode("utf-8")
+    s = io.StringIO(data)
+    data = pd.read_csv(s, header=None)
+
+    print(f"Invoked with {data.shape[0]} records")
+
+    texts = data[0].astype(str).tolist()  # Convert the first column to a list of strings
+    predictions = ScoringService.predict(texts)
+
+    # Convert predictions to JSON
+    result = json.dumps(predictions)
+
+    return flask.Response(response=result, status=200, mimetype="application/json")
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)
