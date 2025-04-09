@@ -1,0 +1,87 @@
+Register Source Location: 
+
+aws datasync create-location-s3 \
+  --s3-bucket-arn arn:aws:s3:::my-source-bucket \
+  --s3-config BucketAccessRoleArn=arn:aws:iam::<your-account-id>:role/DataSyncS3Role
+
+Example : 
+
+aws datasync create-location-s3 \
+  --s3-bucket-arn arn:aws:s3:::ajay3456 \
+  --s3-config BucketAccessRoleArn=arn:aws:iam::123456787899:role/DataSyncS3Role
+
+output: 
+
+{
+    "LocationArn": "arn:aws:datasync:ap-south-1:123456787899:location/loc-04ad4adcf34cb4844"
+}
+
+
+Register destination Location: 
+
+
+aws datasync create-location-s3 \
+  --s3-bucket-arn arn:aws:s3:::my-destination-bucket \
+  --s3-config BucketAccessRoleArn=arn:aws:iam::<your-account-id>:role/DataSyncS3Role
+
+Example : 
+aws datasync create-location-s3 \
+  --s3-bucket-arn arn:aws:s3:::appliedai-backup \
+  --s3-config BucketAccessRoleArn=arn:aws:iam::123456787899:role/DataSyncS3Role
+
+
+arn:aws:datasync:ap-south-1:123456787899:location/loc-0466af9906adabcba
+
+
+{
+    "LocationArn": "arn:aws:datasync:ap-south-1:123456787899:location/loc-0466af9906adabcba"
+}
+
+
+
+
+
+Create the Task with File Filter (ONLY one file/folder):
+
+aws datasync create-task \
+  --source-location-arn <source-location-arn> \
+  --destination-location-arn <destination-location-arn> \
+  --name transfer-one-file-task \
+  --includes '[{"FilterType": "SIMPLE_PATTERN", "Value": "folderA/myfile.csv"}]'
+
+example : 
+
+
+aws datasync create-task \
+  --source-location-arn arn:aws:datasync:ap-south-1:123456787899:location/loc-0bac6ed426e8f38fa\
+  --destination-location-arn arn:aws:datasync:ap-south-1:123456787899:location/loc-0a930f8d34d3ad7cc\
+  --name transfer-one-file-task \
+  --includes '[{"FilterType": "SIMPLE_PATTERN", "Value": "/TJWI5OIWFFCMXBHCXAALZ6656A/full-lob-not-nullable-at-target.json"}]'
+
+
+output:
+
+{
+    "TaskArn": "arn:aws:datasync:ap-south-1:123456787899:task/task-0f8b928a653085d46"
+}
+
+
+
+Start the Task:
+
+aws datasync start-task-execution \
+  --task-arn <your-task-arn>
+
+
+example:
+
+aws datasync start-task-execution \
+  --task-arn arn:aws:datasync:ap-south-1:123456787899:task/task-0f8b928a653085d46
+
+output:
+
+{
+    "TaskExecutionArn": "arn:aws:datasync:ap-south-1:123456787899:task/task-0f8b928a653085d46/execution/exec-0cdb038d2372d0df9"
+}
+
+
